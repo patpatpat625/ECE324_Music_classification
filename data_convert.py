@@ -34,7 +34,7 @@ def get_label(filename):
               "Beethoven": [0, 0, 0, 1, 0, 0, 0, 0],
               "Debussy": [0, 0, 0, 0, 1, 0, 0, 0],
               "Chopin": [0, 0, 0, 0, 0, 1, 0, 0],
-              "Brahms": [0, 1, 0, 0, 0, 0, 1, 0],
+              "Brahms": [0, 0, 0, 0, 0, 0, 1, 0],
               "Tchaikovsky": [0, 0, 0, 0, 0, 0, 0, 1]}
     for name in labels:
         if name in filename:
@@ -43,7 +43,7 @@ def get_label(filename):
 
 
 if __name__ == "__main__":
-    dir = 'C:\\Users\\patty\\Desktop\\engsciy3\\ece324\\raw\\'
+    dir = 'D:\\music_classifier\\raw\\'
     out_dir = 'D:\\music_classifier\\data\\'
     # sub_dir = {"train\\", "validate\\", "test\\"}
     sub_dir = {"train\\"}
@@ -74,25 +74,27 @@ if __name__ == "__main__":
         filenames = os.listdir(dir + folder)
         # open every file in the directory
         for file in filenames:
-            print("file done")
             label = get_label(file)
 
             y, sr = librosa.load(dir+folder+file, sr=22050)
-            # the length of a 20 sec clip
+            # the length of a 10 sec clip
             length = sr*10
+            sample_num = 0
+            total = len(y)//sr
 
-            # slice into shorter clips
-            start = 0
-            total = len(y)
-            while start + length < total:
+            # take 15 samples from each piece
+            while sample_num < 15:
+                start = np.random.randint(total-10)
                 extract_arr = y[start:start+length:]
-                start += length
+                # preprocess
                 arr_f = get_feature_vector(extract_arr, sr)
                 arr_s = librosa.feature.melspectrogram(extract_arr, sr)
                 labels.append(label)
                 # append the new arrays to the total array
                 feature_array.append(arr_f)
                 spectrogram_array.append(arr_s)
+
+                sample_num += 1
 
         # convert to np arrays and save to file
         save_to_csv(out_dir + folder + "feature", feature_array)
