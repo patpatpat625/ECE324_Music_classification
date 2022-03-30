@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
-from torchvision import models
 
 
 # model definition
@@ -54,32 +53,32 @@ class CNN_Ensemble2(nn.Module):
         # spectrogram CNN
         self.network3 = torch.nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=3),
-            nn.ReLU(),
             nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=16),
-            nn.ReLU(),
             nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=1),
-            nn.ReLU())
+            nn.BatchNorm2d(num_features=1))
 
         # feature CNN
         self.network4 = torch.nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=3),
-            nn.ReLU(),
             nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=16),
-            nn.ReLU(),
             nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=1),
-            nn.ReLU())
+            nn.BatchNorm2d(num_features=1))
 
         # combined
         self.linear = nn.Linear(3392, 8)
@@ -103,7 +102,7 @@ def plot(title, y, y_label):
 
 
 if __name__ == "__main__":
-    np.random.seed(615)
+    np.random.seed(605)
     # load data and convert to tensor
     dir = "D:\\music_classifier\\data\\"
 
