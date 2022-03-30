@@ -3,26 +3,19 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 from torchvision import models
+from tqdm import tqdm
 
 
 # model definition
 # Using CNNs
-class CNN_Ensemble(nn.Module):
+class Resnet_Ensemble(nn.Module):
     def __init__(self):
         # call super to initialize the class above in the hierarchy
         super(CNN_Ensemble, self).__init__()
 
         # spectrogram CNN
-        self.network1 = torch.nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.ReLU())
+        self.network1 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
+        self.network1.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=3,bias=False)
 
         # feature CNN
         self.network2 = torch.nn.Sequential(
@@ -37,7 +30,7 @@ class CNN_Ensemble(nn.Module):
             nn.ReLU())
 
         # combined
-        self.linear = nn.Linear(3392, 8)
+        self.linear = nn.Linear(3544, 8)
 
     def forward(self, x1, x2):
         one = self.network1(x1)
@@ -45,7 +38,6 @@ class CNN_Ensemble(nn.Module):
 
         # flatten and concat the two matrices
         x = torch.cat((torch.flatten(one), torch.flatten(two)), dim=0)
-
         return torch.sigmoid(self.linear(x))
 
 
@@ -59,7 +51,7 @@ def plot(title, y, y_label):
 
 if __name__ == "__main__":
     # load training, validation, and testing
-    dir = "D:\\music_classifier\\data\\"
+    dir = "C:\\Users\\xtzha\Desktop\\ECE324\ECE324_Music_classification\\data\\"
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x2_train = np.load(dir + "train\\feature.npy")
     y_train = np.load(dir+"train\\label_num.npy")
@@ -69,23 +61,26 @@ if __name__ == "__main__":
     lr = 0.0005
     batch = 1
     # Initialize model
-    model = CNN_Ensemble()
+  #  resnet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
+    model = Resnet_Ensemble()
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.1)
+    optimizer = torch.optim.Adam(model.parameters(), lr)
 
     # Training
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         start = 0
         accuracy = 0
         val_accuracy = 0
         while start < len(x1_train):
             # get a new training data
-            curr_x1_train = torch.from_numpy(x1_train[start, :, :]).unsqueeze(0).float()
+            curr_x1_train = torch.from_numpy(x1_train[start, :, :]).unsqueeze(0).unsqueeze(0).float()
             curr_x2_train = torch.from_numpy(x2_train[start, :, :]).unsqueeze(0).float()
             curr_y_train = torch.tensor(y_train[start]).type(torch.LongTensor)
             start += 1
+
+       #     print(curr_x1_train.shape)
 
             y_pred = model(curr_x1_train, curr_x2_train)
 
