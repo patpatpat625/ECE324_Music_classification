@@ -11,7 +11,7 @@ from tqdm import tqdm
 class Resnet_Ensemble(nn.Module):
     def __init__(self):
         # call super to initialize the class above in the hierarchy
-        super(CNN_Ensemble, self).__init__()
+        super(Resnet_Ensemble, self).__init__()
 
         # spectrogram CNN
         self.network1 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
@@ -51,7 +51,7 @@ def plot(title, y, y_label):
 
 if __name__ == "__main__":
     # load training, validation, and testing
-    dir = "C:\\Users\\xtzha\Desktop\\ECE324\ECE324_Music_classification\\data\\"
+    dir = "D:\\music_classifier\\data\\"
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x2_train = np.load(dir + "train\\feature.npy")
     y_train = np.load(dir+"train\\label_num.npy")

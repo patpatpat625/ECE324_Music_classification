@@ -42,11 +42,27 @@ def get_label(filename):
     return None
 
 
+# returns label of the song
+def get_label1(filename):
+    labels = {"Bach": 0,
+              "Vivaldi": 1,
+              "Mozart": 2,
+              "Beethoven": 3,
+              "Debussy": 4,
+              "Chopin": 5,
+              "Brahms": 6,
+              "Tchaikovsky": 7}
+    for name in labels:
+        if name in filename:
+            return labels[name]
+    return None
+
+
 if __name__ == "__main__":
     dir = 'D:\\music_classifier\\raw\\'
     out_dir = 'D:\\music_classifier\\data\\'
     # sub_dir = {"train\\", "validate\\", "test\\"}
-    sub_dir = {"train\\"}
+    sub_dir = {"validate\\"}
     fn_list_1 = [
         feature.chroma_stft,
         feature.chroma_cqt,
