@@ -63,18 +63,22 @@ if __name__ == "__main__":
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x2_train = np.load(dir + "train\\feature.npy")
     y_train = np.load(dir+"train\\label_num.npy")
+    x1_val = np.load(dir + "validate\\spectrogram.npy")
+    x2_val = np.load(dir + "validate\\feature.npy")
+    y_val = np.load(dir + "validate\\label_num.npy")
 
     # define parameters
     epochs = 20
     lr = 0.0005
-    batch = 80
+    batch = 120
 
     # Initialize model
     model = CNN_Ensemble()
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
+    # optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Training
     for epoch in range(epochs):
@@ -97,4 +101,19 @@ if __name__ == "__main__":
             optimizer.step()
             optimizer.zero_grad()
 
+        # calculate validation accuracy
+        start = 0
+        while start < len(x1_val):
+            # get a new training data
+            curr_x1_val = torch.from_numpy(x1_val[start:start+batch, :, :]).unsqueeze(1).float()
+            curr_x2_val = torch.from_numpy(x2_val[start:start+batch, :, :]).unsqueeze(1).float()
+            curr_y_val = torch.tensor(y_val[start:start+batch]).type(torch.LongTensor)
+            # increase start index by batch size
+            start += batch
+
+            y_pred_val = model(curr_x1_val, curr_x2_val)
+
+            val_accuracy += (y_pred_val.argmax(axis=1) == curr_y_val).sum()
+
         print('epoch:', epoch + 1,  'accuracy =', accuracy.item(), ' ', accuracy.item() / len(x1_train))
+        print('validation accuracy =', val_accuracy.item() / len(x1_val))

@@ -14,9 +14,7 @@ class Resnet_Ensemble(nn.Module):
         super(Resnet_Ensemble, self).__init__()
 
         # spectrogram CNN
-        self.network1 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
-        # change input channel to 1
-        self.network1.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=3,bias=False)
+        self.network1 = torch.nn.Sequential(*(list(models.resnet152(pretrained=True).children())[:-1]))
 
         # feature CNN
         self.network2 = torch.nn.Sequential(
@@ -31,14 +29,14 @@ class Resnet_Ensemble(nn.Module):
             nn.ReLU())
 
         # combined
-        self.linear = nn.Linear(3544, 8)
+        self.linear = nn.Linear(4592, 8)
 
     def forward(self, x1, x2):
         one = self.network1(x1)
         two = self.network2(x2)
 
         # flatten and concat the two matrices
-        x = torch.cat((torch.flatten(one), torch.flatten(two)), dim=0)
+        x = torch.cat((torch.flatten(one, start_dim=1), torch.flatten(two, start_dim=1)), dim=1)
         return torch.sigmoid(self.linear(x))
 
 
@@ -56,13 +54,15 @@ if __name__ == "__main__":
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x2_train = np.load(dir + "train\\feature.npy")
     y_train = np.load(dir+"train\\label_num.npy")
+    x1_val = np.load(dir + "validate\\spectrogram.npy")
+    x2_val = np.load(dir + "validate\\feature.npy")
+    y_val = np.load(dir + "validate\\label_num.npy")
 
     # define parameters
     epochs = 20
     lr = 0.0005
-    batch = 1
+    batch = 120
     # Initialize model
-  #  resnet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
     model = Resnet_Ensemble()
 
     # Initialize loss function and optimizer
@@ -76,17 +76,15 @@ if __name__ == "__main__":
         val_accuracy = 0
         while start < len(x1_train):
             # get a new training data
-            curr_x1_train = torch.from_numpy(x1_train[start, :, :]).unsqueeze(0).unsqueeze(0).float()
-            curr_x2_train = torch.from_numpy(x2_train[start, :, :]).unsqueeze(0).float()
-            curr_y_train = torch.tensor(y_train[start]).type(torch.LongTensor)
-            start += 1
-
-       #     print(curr_x1_train.shape)
+            curr_x1_train = torch.from_numpy(x1_train[start:start + batch, :, :]).unsqueeze(1).repeat(1, 3, 1, 1).float()
+            curr_x2_train = torch.from_numpy(x2_train[start:start + batch, :, :]).unsqueeze(1).float()
+            curr_y_train = torch.tensor(y_train[start:start + batch]).type(torch.LongTensor)
+            # increase start index by batch size
+            start += batch
 
             y_pred = model(curr_x1_train, curr_x2_train)
 
-            if (y_pred.argmax() == curr_y_train):
-                accuracy += 1
+            accuracy += (y_pred.argmax(axis=1) == curr_y_train).sum()
             curr_loss = loss(y_pred, curr_y_train)
             curr_loss.backward()
             optimizer.step()
