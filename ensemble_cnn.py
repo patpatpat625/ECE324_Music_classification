@@ -36,16 +36,48 @@ class CNN_Ensemble(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.ReLU())
 
+        # spectrogram CNN
+        self.network3 = torch.nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=3),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=16),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=1),
+            nn.ReLU())
+
+        # feature CNN
+        self.network4 = torch.nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=3),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=16),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=1),
+            nn.ReLU())
+
         # combined
         self.linear = nn.Linear(3392, 8)
 
     def forward(self, x1, x2):
         one = self.network1(x1)
         two = self.network2(x2)
+        three = self.network3(x1)
+        four = self.network4(x2)
 
         # flatten and concat the two matrices
-        x = torch.cat((torch.flatten(one, start_dim=1), torch.flatten(two, start_dim=1)), dim=1)
-
+        # x = torch.cat((torch.flatten(one, start_dim=1), torch.flatten(two, start_dim=1)), dim=1)
+        x = torch.cat((torch.flatten(three, start_dim=1), torch.flatten(four, start_dim=1)), dim=1)
         return torch.sigmoid(self.linear(x))
 
 
@@ -59,7 +91,7 @@ def plot(title, y, y_label):
 
 if __name__ == "__main__":
     # load training, validation, and testing
-    dir = "D:\\music_classifier\\data\\"
+    dir = "C:\\Users\\xtzha\\Desktop\\ECE324\\ECE324_Music_classification\\data\\"
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x2_train = np.load(dir + "train\\feature.npy")
     y_train = np.load(dir+"train\\label_num.npy")
@@ -70,7 +102,7 @@ if __name__ == "__main__":
     # define parameters
     epochs = 20
     lr = 0.0005
-    batch = 120
+    batch = 200
 
     # Initialize model
     model = CNN_Ensemble()
@@ -78,7 +110,7 @@ if __name__ == "__main__":
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
     # optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-6)
 
     # Training
     for epoch in range(epochs):
@@ -115,5 +147,7 @@ if __name__ == "__main__":
 
             val_accuracy += (y_pred_val.argmax(axis=1) == curr_y_val).sum()
 
-        print('epoch:', epoch + 1,  'accuracy =', accuracy.item(), ' ', accuracy.item() / len(x1_train))
-        print('validation accuracy =', val_accuracy.item() / len(x1_val))
+        print('epoch:', epoch + 1)
+        print('\t correct items', accuracy.item())
+        print('\t training accuracy =', round(accuracy.item() / len(x1_train) * 100, 4))
+        print('\t validation accuracy =', round(val_accuracy.item() / len(x1_val) * 100, 4))
