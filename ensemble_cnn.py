@@ -68,6 +68,7 @@ if __name__ == "__main__":
     epochs = 20
     lr = 0.0005
     batch = 80
+
     # Initialize model
     model = CNN_Ensemble()
 
