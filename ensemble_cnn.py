@@ -7,11 +7,10 @@ from torchvision import models
 
 # model definition
 # Using CNNs
-class CNN_Ensemble(nn.Module):
+class CNN_Ensemble1(nn.Module):
     def __init__(self):
         # call super to initialize the class above in the hierarchy
-        super(CNN_Ensemble, self).__init__()
-
+        super(CNN_Ensemble1, self).__init__()
         # spectrogram CNN
         self.network1 = torch.nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
@@ -35,6 +34,22 @@ class CNN_Ensemble(nn.Module):
             nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.ReLU())
+        # combined
+        self.linear = nn.Linear(3392, 8)
+
+    def forward(self, x1, x2):
+        one = self.network1(x1)
+        two = self.network2(x2)
+
+        # flatten and concat the two matrices
+        x = torch.cat((torch.flatten(one, start_dim=1), torch.flatten(two, start_dim=1)), dim=1)
+        return torch.sigmoid(self.linear(x))
+
+
+class CNN_Ensemble2(nn.Module):
+    def __init__(self):
+        # call super to initialize the class above in the hierarchy
+        super(CNN_Ensemble2, self).__init__()
 
         # spectrogram CNN
         self.network3 = torch.nn.Sequential(
@@ -70,13 +85,11 @@ class CNN_Ensemble(nn.Module):
         self.linear = nn.Linear(3392, 8)
 
     def forward(self, x1, x2):
-        one = self.network1(x1)
-        two = self.network2(x2)
+
         three = self.network3(x1)
         four = self.network4(x2)
 
         # flatten and concat the two matrices
-        # x = torch.cat((torch.flatten(one, start_dim=1), torch.flatten(two, start_dim=1)), dim=1)
         x = torch.cat((torch.flatten(three, start_dim=1), torch.flatten(four, start_dim=1)), dim=1)
         return torch.sigmoid(self.linear(x))
 
@@ -90,38 +103,53 @@ def plot(title, y, y_label):
 
 
 if __name__ == "__main__":
-    # load training, validation, and testing
-    dir = "C:\\Users\\xtzha\\Desktop\\ECE324\\ECE324_Music_classification\\data\\"
+    np.random.seed(615)
+    # load data and convert to tensor
+    dir = "D:\\music_classifier\\data\\"
+
     x1_train = np.load(dir+"train\\spectrogram.npy")
+    x1_train = torch.from_numpy(x1_train).unsqueeze(1).float()
     x2_train = np.load(dir + "train\\feature.npy")
+    x2_train = torch.from_numpy(x2_train).unsqueeze(1).float()
     y_train = np.load(dir+"train\\label_num.npy")
+    y_train = torch.tensor(y_train).type(torch.LongTensor)
+
     x1_val = np.load(dir + "validate\\spectrogram.npy")
+    x1_val = torch.from_numpy(x1_val).unsqueeze(1).float()
     x2_val = np.load(dir + "validate\\feature.npy")
+    x2_val = torch.from_numpy(x2_val).unsqueeze(1).float()
     y_val = np.load(dir + "validate\\label_num.npy")
+    y_val = torch.tensor(y_val).type(torch.LongTensor)
 
     # define parameters
-    epochs = 20
-    lr = 0.0005
+    epochs = 15
+    lr = 0.0003
     batch = 200
 
     # Initialize model
-    model = CNN_Ensemble()
+    model = CNN_Ensemble2()
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
     # optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-6)
+    # index array
+    indices = np.arange(x1_train.shape[0])
 
     # Training
     for epoch in range(epochs):
         start = 0
         accuracy = 0
         val_accuracy = 0
+        # shuffle the indices to remove correlation
+        np.random.shuffle(indices)
         while start < len(x1_train):
             # get a new training data
-            curr_x1_train = torch.from_numpy(x1_train[start:start+batch, :, :]).unsqueeze(1).float()
-            curr_x2_train = torch.from_numpy(x2_train[start:start+batch, :, :]).unsqueeze(1).float()
-            curr_y_train = torch.tensor(y_train[start:start+batch]).type(torch.LongTensor)
+            # get a new training data
+            curr = indices[start:start + batch]
+            curr_x1_train = x1_train[curr, :, :]
+            curr_x2_train = x2_train[curr, :, :]
+            curr_y_train = y_train[curr]
             # increase start index by batch size
             start += batch
 
@@ -137,9 +165,9 @@ if __name__ == "__main__":
         start = 0
         while start < len(x1_val):
             # get a new training data
-            curr_x1_val = torch.from_numpy(x1_val[start:start+batch, :, :]).unsqueeze(1).float()
-            curr_x2_val = torch.from_numpy(x2_val[start:start+batch, :, :]).unsqueeze(1).float()
-            curr_y_val = torch.tensor(y_val[start:start+batch]).type(torch.LongTensor)
+            curr_x1_val = x1_val[start:start + batch, :, :]
+            curr_x2_val = x2_val[start:start + batch, :, :]
+            curr_y_val = y_val[start:start + batch]
             # increase start index by batch size
             start += batch
 
