@@ -15,6 +15,7 @@ class Resnet_Ensemble(nn.Module):
 
         # spectrogram CNN
         self.network1 = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_resnet50', pretrained=True)
+        # change input channel to 1
         self.network1.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=3,bias=False)
 
         # feature CNN

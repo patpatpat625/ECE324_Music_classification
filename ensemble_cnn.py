@@ -44,7 +44,7 @@ class CNN_Ensemble(nn.Module):
         two = self.network2(x2)
 
         # flatten and concat the two matrices
-        x = torch.cat((torch.flatten(one), torch.flatten(two)), dim=0)
+        x = torch.cat((torch.flatten(one, start_dim=1), torch.flatten(two, start_dim=1)), dim=1)
 
         return torch.sigmoid(self.linear(x))
 
@@ -67,13 +67,13 @@ if __name__ == "__main__":
     # define parameters
     epochs = 20
     lr = 0.0005
-    batch = 1
+    batch = 80
     # Initialize model
     model = CNN_Ensemble()
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.1)
+    optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
 
     # Training
     for epoch in range(epochs):
@@ -82,18 +82,18 @@ if __name__ == "__main__":
         val_accuracy = 0
         while start < len(x1_train):
             # get a new training data
-            curr_x1_train = torch.from_numpy(x1_train[start, :, :]).unsqueeze(0).float()
-            curr_x2_train = torch.from_numpy(x2_train[start, :, :]).unsqueeze(0).float()
-            curr_y_train = torch.tensor(y_train[start]).type(torch.LongTensor)
-            start += 1
+            curr_x1_train = torch.from_numpy(x1_train[start:start+batch, :, :]).unsqueeze(1).float()
+            curr_x2_train = torch.from_numpy(x2_train[start:start+batch, :, :]).unsqueeze(1).float()
+            curr_y_train = torch.tensor(y_train[start:start+batch]).type(torch.LongTensor)
+            # increase start index by batch size
+            start += batch
 
             y_pred = model(curr_x1_train, curr_x2_train)
 
-            if (y_pred.argmax() == curr_y_train):
-                accuracy += 1
+            accuracy += (y_pred.argmax(axis=1) == curr_y_train).sum()
             curr_loss = loss(y_pred, curr_y_train)
             curr_loss.backward()
             optimizer.step()
             optimizer.zero_grad()
 
-        print('epoch:', epoch + 1,  'accuracy =', accuracy, ' ', accuracy / len(x1_train))
+        print('epoch:', epoch + 1,  'accuracy =', accuracy.item(), ' ', accuracy.item() / len(x1_train))
