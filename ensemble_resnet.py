@@ -14,7 +14,7 @@ class Resnet_Ensemble(nn.Module):
         super(Resnet_Ensemble, self).__init__()
 
         # spectrogram CNN
-        self.network1 = torch.nn.Sequential(*(list(models.resnet152(pretrained=True).children())[:-1]))
+        self.network1 = torch.nn.Sequential(*(list(models.resnet50(pretrained=True).children())[:-1]))
 
         # feature CNN
         self.network2 = torch.nn.Sequential(
@@ -49,36 +49,55 @@ def plot(title, y, y_label):
 
 
 if __name__ == "__main__":
-    # load training, validation, and testing
-    dir = "D:\\music_classifier\\data\\"
+    device = 'cuda'
+    np.random.seed(65)
+    # load data and convert to tensor
+    dir = "D:\\music_classifier\\data_10\\"
+
     x1_train = np.load(dir+"train\\spectrogram.npy")
+    x1_train = torch.from_numpy(x1_train).unsqueeze(1).repeat(1, 3, 1, 1).float()
     x2_train = np.load(dir + "train\\feature.npy")
-    y_train = np.load(dir+"train\\label_num.npy")
-    x1_val = np.load(dir + "validate\\spectrogram.npy")
-    x2_val = np.load(dir + "validate\\feature.npy")
-    y_val = np.load(dir + "validate\\label_num.npy")
+    x2_train = torch.from_numpy(x2_train).unsqueeze(1).float()
+    y_train = np.load(dir+"train\\label.npy")
+    y_train = torch.tensor(y_train).type(torch.LongTensor)
+
+    x1_val = np.load(dir + "val\\spectrogram.npy")
+    x1_val = torch.from_numpy(x1_val).unsqueeze(1).repeat(1, 3, 1, 1).float()
+    x2_val = np.load(dir + "val\\feature.npy")
+    x2_val = torch.from_numpy(x2_val).unsqueeze(1).float()
+    y_val = np.load(dir + "val\\label.npy")
+    y_val = torch.tensor(y_val).type(torch.LongTensor)
 
     # define parameters
     epochs = 20
     lr = 0.0005
-    batch = 120
+    batch = 100
     # Initialize model
     model = Resnet_Ensemble()
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr, weight_decay=1e-6)
+    # index array
+    indices = np.arange(x1_train.shape[0])
 
     # Training
-    for epoch in tqdm(range(epochs)):
+    for epoch in range(epochs):
         start = 0
         accuracy = 0
         val_accuracy = 0
+        # shuffle the indices to remove correlation
+        np.random.shuffle(indices)
         while start < len(x1_train):
+            end = start + batch
+            if end > len(y_train):
+                end = len(y_train)
+            curr = indices[start:end]
             # get a new training data
-            curr_x1_train = torch.from_numpy(x1_train[start:start + batch, :, :]).unsqueeze(1).repeat(1, 3, 1, 1).float()
-            curr_x2_train = torch.from_numpy(x2_train[start:start + batch, :, :]).unsqueeze(1).float()
-            curr_y_train = torch.tensor(y_train[start:start + batch]).type(torch.LongTensor)
+            curr = indices[start:start + batch]
+            curr_x1_train = x1_train[curr, :, :]
+            curr_x2_train = x2_train[curr, :, :]
+            curr_y_train = y_train[curr]
             # increase start index by batch size
             start += batch
 
@@ -90,4 +109,21 @@ if __name__ == "__main__":
             optimizer.step()
             optimizer.zero_grad()
 
-        print('epoch:', epoch + 1,  'accuracy =', accuracy, ' ', accuracy / len(x1_train))
+            # calculate validation accuracy
+            start = 0
+            while start < len(x1_val):
+                # get a new training data
+                curr_x1_val = x1_val[start:start + batch, :, :]
+                curr_x2_val = x2_val[start:start + batch, :, :]
+                curr_y_val = y_val[start:start + batch]
+                # increase start index by batch size
+                start += batch
+
+                y_pred_val = model(curr_x1_val, curr_x2_val)
+
+                val_accuracy += (y_pred_val.argmax(axis=1) == curr_y_val).sum()
+
+            print('epoch:', epoch + 1)
+            print('\t correct items', accuracy.item())
+            print('\t training accuracy =', round(accuracy.item() / len(x1_train) * 100, 4))
+            print('\t validation accuracy =', round(val_accuracy.item() / len(x1_val) * 100, 4))

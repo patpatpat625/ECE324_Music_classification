@@ -60,9 +60,13 @@ def get_label1(filename):
 
 if __name__ == "__main__":
     dir = 'D:\\music_classifier\\raw\\'
-    out_dir = 'D:\\music_classifier\\data\\'
-    # sub_dir = {"train\\", "validate\\", "test\\"}
-    sub_dir = {"validate\\"}
+    out_dir = 'D:\\music_classifier\\data_10\\'
+    sub_dir = {"Bach\\", "Vivaldi\\", "Mozart\\", "Beethoven\\", "Brahms\\", "Chopin\\", "Debussy\\", "Tchaikovsky\\"}
+
+    # define sampling params
+    sample_ratio = 20
+    sample_length = 10
+    # define the features
     fn_list_1 = [
         feature.chroma_stft,
         feature.chroma_cqt,
@@ -84,23 +88,29 @@ if __name__ == "__main__":
 
     # repeat this for train, validate, test
     for folder in sub_dir:
-        feature_array = []
-        spectrogram_array = []
-        labels = []
+        # all pieces of a particular composer is an array of 3d arrays where each 3d array stores info about one piece
+        total_feature_array = []
+        total_spectrogram_array = []
+        total_labels = []
         filenames = os.listdir(dir + folder)
         # open every file in the directory
         for file in filenames:
-            label = get_label(file)
+            # each piece is an array of 2d sample arrays
+            feature_array = []
+            spectrogram_array = []
+            labels = []
+            label = get_label1(file)
 
             y, sr = librosa.load(dir+folder+file, sr=22050)
-            # the length of a 10 sec clip
-            length = sr*10
+
+            # the length of one sample
+            length = sr*sample_length
             sample_num = 0
             total = len(y)//sr
+            total_sample = total//sample_ratio
 
-            # take 15 samples from each piece
-            while sample_num < 15:
-                start = np.random.randint(total-10)
+            while sample_num < total_sample:
+                start = np.random.randint(total-sample_length)
                 extract_arr = y[start:start+length:]
                 # preprocess
                 arr_f = get_feature_vector(extract_arr, sr)
@@ -111,9 +121,12 @@ if __name__ == "__main__":
                 spectrogram_array.append(arr_s)
 
                 sample_num += 1
+            total_feature_array.append(feature_array)
+            total_spectrogram_array.append(spectrogram_array)
+            total_labels.append(labels)
 
         # convert to np arrays and save to file
-        save_to_csv(out_dir + folder + "feature", feature_array)
-        save_to_csv(out_dir + folder + "spectrogram", spectrogram_array)
-        save_to_csv(out_dir + folder + "label", np.array(labels))
+        save_to_csv(out_dir + folder + "feature", total_feature_array)
+        save_to_csv(out_dir + folder + "spectrogram", total_spectrogram_array)
+        save_to_csv(out_dir + folder + "label", np.array(total_labels, dtype=object))
 

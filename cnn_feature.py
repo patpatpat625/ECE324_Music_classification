@@ -14,11 +14,11 @@ class CNN_feature(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=3),
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
+            nn.Conv2d(in_channels=3, out_channels=6, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=16),
-            nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
+            nn.BatchNorm2d(num_features=6),
+            nn.Conv2d(in_channels=6, out_channels=1, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=1))
@@ -33,26 +33,33 @@ class CNN_feature(nn.Module):
         return torch.sigmoid(self.linear(x))
 
 if __name__ == "__main__":
-    np.random.seed(605)
+    np.random.seed(729)
     # load data and convert to tensor
-    dir = "D:\\music_classifier\\data\\"
+    dir = "D:\\music_classifier\\data_10\\"
     x2_train = np.load(dir + "train\\feature.npy")
     x2_train = torch.from_numpy(x2_train).unsqueeze(1).float()
-    y_train = np.load(dir+"train\\label_num.npy")
+    y_train = np.load(dir+"train\\label.npy")
     y_train = torch.tensor(y_train).type(torch.LongTensor)
 
-    x2_val = np.load(dir + "validate\\feature.npy")
+    x2_val = np.load(dir + "val\\feature.npy")
     x2_val = torch.from_numpy(x2_val).unsqueeze(1).float()
-    y_val = np.load(dir + "validate\\label_num.npy")
+    y_val = np.load(dir + "val\\label.npy")
     y_val = torch.tensor(y_val).type(torch.LongTensor)
 
+    x2_test = np.load(dir + "test\\feature.npy")
+    x2_test = torch.from_numpy(x2_test).unsqueeze(1).float()
+    y_test = np.load(dir + "test\\label.npy")
+    y_test = torch.tensor(y_test).type(torch.LongTensor)
+
     # define parameters
-    epochs = 15
-    lr = 0.0003
+    epochs = 30
+    lr = 0.0002
     batch = 200
 
     # Initialize model
     model = CNN_feature()
+    #checkpoint = torch.load("C:\\Users\\patty\\Desktop\\ECE324_Music_classification\\'f_model.pth'")
+    #model.load_state_dict(checkpoint['state_dict'])
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
@@ -66,6 +73,7 @@ if __name__ == "__main__":
         start = 0
         accuracy = 0
         val_accuracy = 0
+        test_accuracy = 0
         # shuffle the indices to remove correlation
         np.random.shuffle(indices)
         while start < len(y_train):
@@ -99,7 +107,24 @@ if __name__ == "__main__":
 
             val_accuracy += (y_pred_val.argmax(axis=1) == curr_y_val).sum()
 
+        # calculate testing accuracy
+        start = 0
+        while start < len(y_test):
+            # get a new training data
+            curr_x2_test = x2_test[start:start + batch, :, :]
+            curr_y_test = y_test[start:start + batch]
+            # increase start index by batch size
+            start += batch
+
+            y_pred_test = model(curr_x2_test)
+
+            test_accuracy += (y_pred_test.argmax(axis=1) == curr_y_test).sum()
+
         print('epoch:', epoch + 1)
         print('\t correct items', accuracy.item())
         print('\t training accuracy =', round(accuracy.item() / len(y_train) * 100, 4))
         print('\t validation accuracy =', round(val_accuracy.item() / len(y_val) * 100, 4))
+        print('\t testing accuracy =', round(test_accuracy.item() / len(y_test) * 100, 4))
+
+    # save model
+    torch.save(model.state_dict(), "C:\\Users\\patty\\Desktop\\ECE324_Music_classification\\'f_model.pth'")

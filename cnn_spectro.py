@@ -29,24 +29,29 @@ class CNN_feature(nn.Module):
         return torch.sigmoid(self.linear(x))
 
 if __name__ == "__main__":
-    np.random.seed(605)
+    np.random.seed(829)
     # load data and convert to tensor
-    dir = "D:\\music_classifier\\data\\"
+    dir = "D:\\music_classifier\\data_10\\"
 
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x1_train = torch.from_numpy(x1_train).unsqueeze(1).float()
-    y_train = np.load(dir+"train\\label_num.npy")
+    y_train = np.load(dir+"train\\label.npy")
     y_train = torch.tensor(y_train).type(torch.LongTensor)
 
-    x1_val = np.load(dir + "validate\\spectrogram.npy")
+    x1_val = np.load(dir + "val\\spectrogram.npy")
     x1_val = torch.from_numpy(x1_val).unsqueeze(1).float()
-    y_val = np.load(dir + "validate\\label_num.npy")
+    y_val = np.load(dir + "val\\label.npy")
     y_val = torch.tensor(y_val).type(torch.LongTensor)
+
+    x1_test= np.load(dir + "test\\spectrogram.npy")
+    x1_test = torch.from_numpy(x1_test).unsqueeze(1).float()
+    y_test = np.load(dir + "test\\label.npy")
+    y_test = torch.tensor(y_test).type(torch.LongTensor)
 
     # define parameters
     epochs = 20
-    lr = 0.0003
-    batch = 200
+    lr = 0.00005
+    batch = 150
 
     # Initialize model
     model = CNN_feature()
@@ -63,11 +68,15 @@ if __name__ == "__main__":
         start = 0
         accuracy = 0
         val_accuracy = 0
+        test_accuracy = 0
         # shuffle the indices to remove correlation
         np.random.shuffle(indices)
         while start < len(y_train):
             # get a new training data
-            curr = indices[start:start + batch]
+            end = start + batch
+            if end > len(y_train):
+                end = len(y_train)
+            curr = indices[start:end]
             curr_x1_train = x1_train[curr, :, :]
             curr_y_train = y_train[curr]
             # increase start index by batch size
@@ -94,7 +103,23 @@ if __name__ == "__main__":
 
             val_accuracy += (y_pred_val.argmax(axis=1) == curr_y_val).sum()
 
+        # calculate testing accuracy
+        start = 0
+        while start < len(y_test):
+            # get a new training data
+            curr_x1_test = x1_test[start:start + batch, :, :]
+            curr_y_test = y_test[start:start + batch]
+            # increase start index by batch size
+            start += batch
+
+            y_pred_test = model(curr_x1_test)
+
+            test_accuracy += (y_pred_test.argmax(axis=1) == curr_y_test).sum()
+
         print('epoch:', epoch + 1)
         print('\t correct items', accuracy.item())
         print('\t training accuracy =', round(accuracy.item() / len(y_train) * 100, 4))
         print('\t validation accuracy =', round(val_accuracy.item() / len(y_val) * 100, 4))
+        print('\t testing accuracy =', round(test_accuracy.item() / len(y_test) * 100, 4))
+    # save model
+    torch.save(model.state_dict(), "C:\\Users\\patty\\Desktop\\ECE324_Music_classification\\'s_model.pth'")
