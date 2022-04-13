@@ -5,16 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0764501-13f6-418b-853d-2e28c887577b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/data_divide.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ECE324_Music_classification.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ECE324_Music_classification.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/'f_model.pth'" beforeDir="false" afterPath="$PROJECT_DIR$/'f_model.pth'" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_feature.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_feature.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_spectro.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_spectro.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_convert.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_convert.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preprocessing_attempt_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_divide.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_divide.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_visualizer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ensemble_cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/ensemble_cnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ensemble_resnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/ensemble_resnet.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +90,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="data_convert" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ECE324_Music_classification" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_convert.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="data_divide" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECE324_Music_classification" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -113,7 +132,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ensemble_cnn" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="data_visualizer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ECE324_Music_classification" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -125,28 +144,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ensemble_cnn.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="ensemble_resnet" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ECE324_Music_classification" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ensemble_resnet.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_visualizer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -159,9 +157,9 @@
       <list>
         <item itemvalue="Python.cnn_feature" />
         <item itemvalue="Python.cnn_spectro" />
-        <item itemvalue="Python.ensemble_cnn" />
         <item itemvalue="Python.data_divide" />
-        <item itemvalue="Python.ensemble_resnet" />
+        <item itemvalue="Python.data_convert" />
+        <item itemvalue="Python.data_visualizer" />
       </list>
     </recent_temporary>
   </component>

@@ -60,12 +60,13 @@ def get_label1(filename):
 
 if __name__ == "__main__":
     dir = 'D:\\music_classifier\\raw\\'
-    out_dir = 'D:\\music_classifier\\data_10\\'
-    sub_dir = {"Bach\\", "Vivaldi\\", "Mozart\\", "Beethoven\\", "Brahms\\", "Chopin\\", "Debussy\\", "Tchaikovsky\\"}
+    out_dir = 'D:\\music_classifier\\data_20\\'
+    # sub_dir = {"Bach\\", "Vivaldi\\", "Mozart\\", "Beethoven\\", "Brahms\\", "Chopin\\", "Debussy\\", "Tchaikovsky\\"}
+    sub_dir = {"Debussy\\", "Tchaikovsky\\"}
 
     # define sampling params
-    sample_ratio = 20
-    sample_length = 10
+    sample_ratio = 30
+    sample_length = 20
     # define the features
     fn_list_1 = [
         feature.chroma_stft,
@@ -111,7 +112,7 @@ if __name__ == "__main__":
 
             while sample_num < total_sample:
                 start = np.random.randint(total-sample_length)
-                extract_arr = y[start:start+length:]
+                extract_arr = y[start*sr:start*sr+length:]
                 # preprocess
                 arr_f = get_feature_vector(extract_arr, sr)
                 arr_s = librosa.feature.melspectrogram(extract_arr, sr)

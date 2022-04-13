@@ -18,24 +18,36 @@ class CNN_feature(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=6),
-            nn.Conv2d(in_channels=6, out_channels=1, kernel_size=3, padding='same'),
+            nn.Conv2d(in_channels=6, out_channels=8, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=1))
+            nn.BatchNorm2d(num_features=8),
+            nn.Conv2d(in_channels=8, out_channels=3, kernel_size=3, padding='same'),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=3),
+            nn.Conv2d(in_channels=3, out_channels=1, kernel_size=3, padding='same'),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=1),
+        )
 
         # combined
-        self.linear = nn.Linear(2544, 8)
+        #self.linear = nn.Linear(312, 8)
+        self.linear1 = nn.Linear(312, 100)
+        self.relu = nn.ReLU()
+        self.linear2 = nn.Linear(100, 8)
 
     def forward(self, x):
         x = self.network(x)
         # flatten and concat the two matrices
         x = torch.flatten(x, start_dim=1)
-        return torch.sigmoid(self.linear(x))
+        return torch.sigmoid(self.linear2(self.relu(self.linear1(x))))
 
 if __name__ == "__main__":
-    np.random.seed(729)
+    np.random.seed(625)
     # load data and convert to tensor
-    dir = "D:\\music_classifier\\data_10\\"
+    dir = "D:\\music_classifier\\data_20\\"
     x2_train = np.load(dir + "train\\feature.npy")
     x2_train = torch.from_numpy(x2_train).unsqueeze(1).float()
     y_train = np.load(dir+"train\\label.npy")
@@ -53,7 +65,7 @@ if __name__ == "__main__":
 
     # define parameters
     epochs = 30
-    lr = 0.0002
+    lr = 0.001
     batch = 200
 
     # Initialize model
@@ -63,8 +75,8 @@ if __name__ == "__main__":
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()
-    # optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-6)
+    #optimizer = torch.optim.SGD(model.parameters(), lr, momentum = 0.9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
     # index array
     indices = np.arange(y_train.shape[0])
 

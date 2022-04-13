@@ -115,17 +115,22 @@ class CNN_Ensemble3(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=3),
-            nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, padding='same'),
+            nn.Conv2d(in_channels=3, out_channels=6, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=16),
-            nn.Conv2d(in_channels=16, out_channels=1, kernel_size=3, padding='same'),
+            nn.BatchNorm2d(num_features=6),
+            nn.Conv2d(in_channels=6, out_channels=3, kernel_size=3, padding='same'),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=3),
+            nn.Conv2d(in_channels=3, out_channels=1, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=1))
 
         # combined
-        self.linear = nn.Linear(12816, 8)
+        #self.linear = nn.Linear(5496, 8)
+        self.linear = nn.Linear(10896, 8)
 
     def forward(self, x1, x2):
 
@@ -149,7 +154,7 @@ def plot(title, y):
 
 if __name__ == "__main__":
     device = 'cpu'
-    np.random.seed(829)
+    np.random.seed(555)
     # load data and convert to tensor
     dir = "D:\\music_classifier\\data_10\\"
 
@@ -177,10 +182,10 @@ if __name__ == "__main__":
     # define parameters
     epochs = 20
     lr = 0.0001
-    batch = 200
+    batch = 150
 
     # Initialize model
-    model = CNN_Ensemble2().to(device)
+    model = CNN_Ensemble3().to(device)
 
     # Initialize loss function and optimizer
     loss = nn.CrossEntropyLoss()

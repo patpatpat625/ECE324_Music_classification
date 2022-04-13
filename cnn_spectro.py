@@ -14,24 +14,28 @@ class CNN_feature(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=3),
-            nn.Conv2d(in_channels=3, out_channels=3, kernel_size=3, padding='same'),
+            nn.Conv2d(in_channels=3, out_channels=1, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=3))
+            nn.BatchNorm2d(num_features=1))
 
         # combined
-        self.linear = nn.Linear(10272, 8)
+        self.linear1 = nn.Linear(6880, 1000)
+        self.relu = nn.ReLU()
+        self.linear2 = nn.Linear(1000, 8)
+        # self.linear = nn.Linear(5184, 8)
 
     def forward(self, x):
         x = self.network(x)
         # flatten and concat the two matrices
         x = torch.flatten(x, start_dim=1)
-        return torch.sigmoid(self.linear(x))
+        return torch.sigmoid(self.linear2(self.relu(self.linear1(x))))
+
 
 if __name__ == "__main__":
     np.random.seed(829)
     # load data and convert to tensor
-    dir = "D:\\music_classifier\\data_10\\"
+    dir = "D:\\music_classifier\\data_20\\"
 
     x1_train = np.load(dir+"train\\spectrogram.npy")
     x1_train = torch.from_numpy(x1_train).unsqueeze(1).float()
@@ -49,8 +53,8 @@ if __name__ == "__main__":
     y_test = torch.tensor(y_test).type(torch.LongTensor)
 
     # define parameters
-    epochs = 20
-    lr = 0.00005
+    epochs = 30
+    lr = 0.0001
     batch = 150
 
     # Initialize model
@@ -122,4 +126,4 @@ if __name__ == "__main__":
         print('\t validation accuracy =', round(val_accuracy.item() / len(y_val) * 100, 4))
         print('\t testing accuracy =', round(test_accuracy.item() / len(y_test) * 100, 4))
     # save model
-    torch.save(model.state_dict(), "C:\\Users\\patty\\Desktop\\ECE324_Music_classification\\'s_model.pth'")
+    #torch.save(model.state_dict(), "C:\\Users\\patty\\Desktop\\ECE324_Music_classification\\'s_model.pth'")

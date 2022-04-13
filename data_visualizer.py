@@ -14,17 +14,17 @@ def pie_graph(y, mylabels):
 def plot_training_dist():
     # load data
     results = np.zeros(8)
-    dir = "D:\\music_classifier\\data\\"
+    dir = "D:\\music_classifier\\data_10\\"
     y_train = np.load(dir + "train\\label.npy")
     for data in y_train:
-        results += data
+        results[data] += 1
 
     pie_graph(results, ["Bach", "Vivaldi", "Mozart", "Beethoven", "Debussy", "Chopin", "Brahms", "Tchaikovsky"])
 
 
 def plot_spectrogram():
     # load data
-    dir = "D:\\music_classifier\\data\\"
+    dir = "D:\\music_classifier\\data_10\\"
     x_train = np.load(dir + "train\\spectrogram.npy")
     S = x_train[0]
     fig, ax = plt.subplots()
@@ -36,4 +36,4 @@ def plot_spectrogram():
 
 
 if __name__ == "__main__":
-    plot_spectrogram()
+    plot_training_dist()

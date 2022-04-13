@@ -10,7 +10,7 @@ def append_to(destination, input):
     return destination
 
 if __name__ == "__main__":
-    dir = 'D:\\music_classifier\\data_10\\'
+    dir = 'D:\\music_classifier\\data_20\\'
     sub_dir = {"Bach\\", "Vivaldi\\", "Mozart\\", "Beethoven\\", "Brahms\\", "Chopin\\", "Debussy\\", "Tchaikovsky\\"}
     # define where to store the data
     x1_train = []
@@ -32,8 +32,8 @@ if __name__ == "__main__":
             labels = []
             total_length += len(piece)
         # estimate train, val, and test index
-        train = 0.6*total_length
-        val = 0.8*total_length
+        train = 0.7*total_length
+        val = 0.85*total_length
         # keep track of current size
         curr_size = 0
         for i in range(len(y)):
