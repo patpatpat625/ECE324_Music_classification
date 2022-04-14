@@ -18,7 +18,7 @@ This repository contains 3 proposed Convolutional Neural Networks (CNNs) that ai
   
 ### `data` 
 
-  should contain the training, validation and testing set. However, as these files are too large to upload, the folder is empty.
+  should contain the training, validation and testing set. However, as these files are too large to upload, the folder only contains a csv file with all the classical pieces used for our training and model evaluation
 
 
 ### `data_preprocessing`
