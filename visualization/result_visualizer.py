@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 
 def plot_conf_matrix(y_actual, y_pred, title):
     cf_matrix = confusion_matrix(y_actual, y_pred)
 
+    sns.set(font_scale=1.5)
     ax = sns.heatmap(cf_matrix, annot=True, fmt='', cmap='Blues')
 
     ax.set_title(title);

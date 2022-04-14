@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0764501-13f6-418b-853d-2e28c887577b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/'f_model.pth'" beforeDir="false" afterPath="$PROJECT_DIR$/'f_model.pth'" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cnn_feature.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_feature.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cnn_spectro.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_spectro.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_convert.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_convert.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_divide.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_divide.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_visualizer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ensemble_cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/ensemble_cnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/visualization/result_visualizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/visualization/result_visualizer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
