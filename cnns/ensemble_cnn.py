@@ -12,7 +12,7 @@ class CNN_Ensemble(nn.Module):
         super(CNN_Ensemble, self).__init__()
 
         # spectrogram CNN
-        self.network3 = torch.nn.Sequential(
+        self.network1 = torch.nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
@@ -25,41 +25,54 @@ class CNN_Ensemble(nn.Module):
 
         # feature CNN
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=3, kernel_size=3, padding='same')
-        self.conv2 = nn.Conv2d(in_channels=3, out_channels=8, kernel_size=3, padding='same')
+        self.conv2 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=3, padding='same')
+        self.conv3 = nn.Conv2d(in_channels=6, out_channels=8, kernel_size=3, padding='same')
         self.conv3 = nn.Conv2d(in_channels=8, out_channels=3, kernel_size=3, padding='same')
+        self.conv3 = nn.Conv2d(in_channels=3, out_channels=1, kernel_size=3, padding='same')
 
         self.conv1.weight.data.uniform_(0, 0.05)
         self.conv2.weight.data.uniform_(0, 0.05)
         self.conv3.weight.data.uniform_(0, 0.05)
+        self.conv4.weight.data.uniform_(0, 0.05)
+        self.conv5.weight.data.uniform_(0, 0.05)
 
-        self.network4 = torch.nn.Sequential(
+        self.network2 = torch.nn.Sequential(
             self.conv1,
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.BatchNorm2d(num_features=3),
-
             self.conv2,
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=8),
-
+            nn.BatchNorm2d(num_features=6),
             self.conv3,
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=3))
+            nn.BatchNorm2d(num_features=8),
+            self.conv4,
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=3),
+            self.conv5,
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.BatchNorm2d(num_features=1))
         
         # combined
-        self.linear1 = nn.Linear(17904, 8)
+        self.linear1 = nn.Linear(312+6880, 1000)
+        self.relu = nn.ReLU()
+        self.linear2 = nn.Linear(1000, 8)
 
 
     def forward(self, x1, x2):
 
-        three = self.network3(x1)
-        four = self.network4(x2)
+        x1 = self.network3(x1)
+        x2 = self.network4(x2)
 
         # flatten and concat the two matrices
-        x = torch.cat((torch.flatten(three, start_dim=1), torch.flatten(four, start_dim=1)), dim=1)
-        return torch.sigmoid(self.linear1(x))
+        x = torch.cat((torch.flatten(x1, start_dim=1), torch.flatten(x2, start_dim=1)), dim=1)
+
+        return torch.sigmoid(self.linear2(self.relu(self.linear1(x))))
 
 
 def plot(title, y):

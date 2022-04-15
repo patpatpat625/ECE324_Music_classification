@@ -29,7 +29,7 @@ class CNN_feature(nn.Module):
             nn.Conv2d(in_channels=3, out_channels=1, kernel_size=3, padding='same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.BatchNorm2d(num_features=1),
+            nn.BatchNorm2d(num_features=1)
         )
 
         # combined
